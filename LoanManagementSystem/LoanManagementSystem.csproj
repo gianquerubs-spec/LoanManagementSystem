@@ -47,75 +47,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Forms\ClientForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ClientForm.Designer.cs">
-      <DependentUpon>ClientForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ClientManagementControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Forms\ClientManagementControl.Designer.cs">
-      <DependentUpon>ClientManagementControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\DashboardControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Forms\DashboardControl.Designer.cs">
-      <DependentUpon>DashboardControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\LoanProcessingControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Forms\LoanProcessingControl.Designer.cs">
-      <DependentUpon>LoanProcessingControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\LoginForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\LoginForm.Designer.cs">
-      <DependentUpon>LoginForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\NewLoanForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\NewLoanForm.Designer.cs">
-      <DependentUpon>NewLoanForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\Repayment.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Repayment.Designer.cs">
-      <DependentUpon>Repayment.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\SignupForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SignupForm.Designer.cs">
-      <DependentUpon>SignupForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\UserForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\UserForm.Designer.cs">
-      <DependentUpon>UserForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\UserManagementControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Forms\UserManagementControl.Designer.cs">
-      <DependentUpon>UserManagementControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Models\Client.cs" />
+    <Compile Include="Models\IModel.cs" />
     <Compile Include="Models\Loan.cs" />
+    <Compile Include="Models\Payment.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Presenters\ClientManagementPresenter.cs" />
+    <Compile Include="Presenters\ClientPresenter.cs" />
+    <Compile Include="Presenters\DashboardPresenter.cs" />
+    <Compile Include="Presenters\IPresenter.cs" />
+    <Compile Include="Presenters\LoanPresenter.cs" />
+    <Compile Include="Presenters\LoanProcessingPresenter.cs" />
+    <Compile Include="Presenters\LoginPresenter.cs" />
+    <Compile Include="Presenters\MainPresenter.cs" />
+    <Compile Include="Presenters\PaymentManagementPresenter.cs" />
+    <Compile Include="Presenters\SignupPresenter.cs" />
+    <Compile Include="Presenters\UserManagementPresenter.cs" />
+    <Compile Include="Presenters\UserPresenter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ClientRepository.cs" />
@@ -127,45 +75,98 @@
     <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\ClientService.cs" />
-    <Compile Include="Services\IAuthService.cs" />
-    <Compile Include="Services\IClientService.cs" />
-    <Compile Include="Services\ILoanService.cs" />
+    <Compile Include="Services\Interfaces\IAuthService.cs" />
+    <Compile Include="Services\Interfaces\IClientService.cs" />
+    <Compile Include="Services\Interfaces\ILoanService.cs" />
+    <Compile Include="Services\Interfaces\IPaymentService.cs" />
+    <Compile Include="Services\Interfaces\IUserService.cs" />
     <Compile Include="Services\LoanService.cs" />
+    <Compile Include="Services\PaymentService.cs" />
+    <Compile Include="Services\UserService.cs" />
     <Compile Include="Utilities\DatabaseHelper.cs" />
     <Compile Include="Utilities\DependencyConfig.cs" />
-    <EmbeddedResource Include="Forms\ClientForm.resx">
-      <DependentUpon>ClientForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ClientManagementControl.resx">
+    <Compile Include="Views\Controls\ClientManagementControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ClientManagementControl.Designer.cs">
       <DependentUpon>ClientManagementControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\DashboardControl.resx">
+    </Compile>
+    <Compile Include="Views\Controls\DashboardControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\DashboardControl.Designer.cs">
       <DependentUpon>DashboardControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\LoanProcessingControl.resx">
+    </Compile>
+    <Compile Include="Views\Controls\LoanProcessingControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\LoanProcessingControl.Designer.cs">
       <DependentUpon>LoanProcessingControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\LoginForm.resx">
-      <DependentUpon>LoginForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\NewLoanForm.resx">
-      <DependentUpon>NewLoanForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Repayment.resx">
-      <DependentUpon>Repayment.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\SignupForm.resx">
-      <DependentUpon>SignupForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\UserForm.resx">
-      <DependentUpon>UserForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\UserManagementControl.resx">
+    </Compile>
+    <Compile Include="Views\Controls\PaymentManagementControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\PaymentManagementControl.Designer.cs">
+      <DependentUpon>PaymentManagementControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\UserManagementControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\UserManagementControl.Designer.cs">
       <DependentUpon>UserManagementControl.cs</DependentUpon>
-    </EmbeddedResource>
+    </Compile>
+    <Compile Include="Views\Forms\ClientForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Forms\ClientForm.Designer.cs">
+      <DependentUpon>ClientForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Forms\LoginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Forms\LoginForm.Designer.cs">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Forms\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Forms\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Forms\NewLoanForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Forms\NewLoanForm.Designer.cs">
+      <DependentUpon>NewLoanForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Forms\PaymentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Forms\PaymentForm.Designer.cs">
+      <DependentUpon>PaymentForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Forms\SignupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Forms\SignupForm.Designer.cs">
+      <DependentUpon>SignupForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Forms\UserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Forms\UserForm.Designer.cs">
+      <DependentUpon>UserForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Interfaces\IClientManagementView.cs" />
+    <Compile Include="Views\Interfaces\IClientView.cs" />
+    <Compile Include="Views\Interfaces\IDashboardView.cs" />
+    <Compile Include="Views\Interfaces\ILoanProcessingView.cs" />
+    <Compile Include="Views\Interfaces\ILoginView.cs" />
+    <Compile Include="Views\Interfaces\IMainView.cs" />
+    <Compile Include="Views\Interfaces\IPaymentManagementView.cs" />
+    <Compile Include="Views\Interfaces\ISignupView.cs" />
+    <Compile Include="Views\Interfaces\IUserManagementView.cs" />
+    <Compile Include="Views\Interfaces\IUserView.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -175,6 +176,39 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Views\Controls\ClientManagementControl.resx">
+      <DependentUpon>ClientManagementControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\LoanProcessingControl.resx">
+      <DependentUpon>LoanProcessingControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\PaymentManagementControl.resx">
+      <DependentUpon>PaymentManagementControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\UserManagementControl.resx">
+      <DependentUpon>UserManagementControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Forms\ClientForm.resx">
+      <DependentUpon>ClientForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Forms\LoginForm.resx">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Forms\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Forms\NewLoanForm.resx">
+      <DependentUpon>NewLoanForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Forms\PaymentForm.resx">
+      <DependentUpon>PaymentForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Forms\SignupForm.resx">
+      <DependentUpon>SignupForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Forms\UserForm.resx">
+      <DependentUpon>UserForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -191,5 +225,6 @@
   <ItemGroup>
     <Content Include="LoanDatabase.sql" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

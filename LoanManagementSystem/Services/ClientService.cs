@@ -1,4 +1,5 @@
-﻿using LoanManagementSystem.Models;
+﻿using LoanManagementSystem.Interfaces.Services;
+using LoanManagementSystem.Models;
 using LoanManagementSystem.Utilities;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace LoanManagementSystem.Services
 {
-    public class ClientService
+    public class ClientService : IClientService
     {
         //Get all clients 
         public List<Client> GetAllClients()
@@ -22,7 +23,7 @@ namespace LoanManagementSystem.Services
 
                 var command = new SqlCommand(
                     "SELECT Id, ClientCode, FullName, Email, Phone, Address, CreatedAt, CreatedBy " +
-                    "FROM tbl_clients ORDER BY Id ASC", connection); 
+                    "FROM tbl_clients ORDER BY Id ASC", connection);
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -46,21 +47,28 @@ namespace LoanManagementSystem.Services
             return clients;
         }
 
-        //Add new client
         public bool AddClient(Client client, int createdByUserId = 1)
         {
+            if (ClientCodeExists(client.ClientCode))
+            {
+                return false;
+            }
+
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
 
-                string clientCode = GenerateClientCode();
-
                 var command = new SqlCommand(
-                    "INSERT INTO tbl_clients (ClientCode, FullName, Email, Phone, Address, CreatedBy, CreatedAt) " +
-                    "VALUES (@ClientCode, @FullName, @Email, @Phone, @Address, @CreatedBy, @CreatedAt)",
+                    "INSERT INTO tbl_clients (ClientCode, FullName, Email, Phone, Address, CreatedBy, CreatedAt, " +
+                    "DateOfBirth, Gender, CivilStatus, Occupation, Employer, MonthlyIncome, EmploymentStatus, " +
+                    "GovernmentIdType, GovernmentIdNumber, CreditScore, CreditRating) " +
+                    "VALUES (@ClientCode, @FullName, @Email, @Phone, @Address, @CreatedBy, @CreatedAt, " +
+                    "@DateOfBirth, @Gender, @CivilStatus, @Occupation, @Employer, @MonthlyIncome, @EmploymentStatus, " +
+                    "@GovernmentIdType, @GovernmentIdNumber, @CreditScore, @CreditRating)",
                     connection);
 
-                command.Parameters.AddWithValue("@ClientCode", clientCode);
+                // Original parameters
+                command.Parameters.AddWithValue("@ClientCode", client.ClientCode);
                 command.Parameters.AddWithValue("@FullName", client.FullName);
                 command.Parameters.AddWithValue("@Email", (object)client.Email ?? DBNull.Value);
                 command.Parameters.AddWithValue("@Phone", (object)client.Phone ?? DBNull.Value);
@@ -68,12 +76,24 @@ namespace LoanManagementSystem.Services
                 command.Parameters.AddWithValue("@CreatedBy", createdByUserId);
                 command.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
 
+                // New parameters
+                command.Parameters.AddWithValue("@DateOfBirth", client.DateOfBirth);
+                command.Parameters.AddWithValue("@Gender", (object)client.Gender ?? DBNull.Value);
+                command.Parameters.AddWithValue("@CivilStatus", (object)client.CivilStatus ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Occupation", (object)client.Occupation ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Employer", (object)client.Employer ?? DBNull.Value);
+                command.Parameters.AddWithValue("@MonthlyIncome", client.MonthlyIncome);
+                command.Parameters.AddWithValue("@EmploymentStatus", (object)client.EmploymentStatus ?? DBNull.Value);
+                command.Parameters.AddWithValue("@GovernmentIdType", (object)client.GovernmentIdType ?? DBNull.Value);
+                command.Parameters.AddWithValue("@GovernmentIdNumber", (object)client.GovernmentIdNumber ?? DBNull.Value);
+                command.Parameters.AddWithValue("@CreditScore", client.CreditScore);
+                command.Parameters.AddWithValue("@CreditRating", (object)client.CreditRating ?? DBNull.Value);
+
                 int result = command.ExecuteNonQuery();
                 return result > 0;
             }
         }
 
-        //Update client info
         public bool UpdateClient(Client client)
         {
             using (var connection = DatabaseHelper.GetConnection())
@@ -81,14 +101,32 @@ namespace LoanManagementSystem.Services
                 connection.Open();
 
                 var command = new SqlCommand(
-                    "UPDATE tbl_clients SET FullName = @FullName, Email = @Email, Phone = @Phone, Address = @Address " +
+                    "UPDATE tbl_clients SET FullName = @FullName, Email = @Email, Phone = @Phone, Address = @Address, " +
+                    "DateOfBirth = @DateOfBirth, Gender = @Gender, CivilStatus = @CivilStatus, Occupation = @Occupation, " +
+                    "Employer = @Employer, MonthlyIncome = @MonthlyIncome, EmploymentStatus = @EmploymentStatus, " +
+                    "GovernmentIdType = @GovernmentIdType, GovernmentIdNumber = @GovernmentIdNumber, " +
+                    "CreditScore = @CreditScore, CreditRating = @CreditRating " +
                     "WHERE Id = @Id", connection);
 
+                // Original parameters
                 command.Parameters.AddWithValue("@FullName", client.FullName);
                 command.Parameters.AddWithValue("@Email", (object)client.Email ?? DBNull.Value);
                 command.Parameters.AddWithValue("@Phone", (object)client.Phone ?? DBNull.Value);
                 command.Parameters.AddWithValue("@Address", (object)client.Address ?? DBNull.Value);
                 command.Parameters.AddWithValue("@Id", client.Id);
+
+                // New parameters
+                command.Parameters.AddWithValue("@DateOfBirth", client.DateOfBirth);
+                command.Parameters.AddWithValue("@Gender", (object)client.Gender ?? DBNull.Value);
+                command.Parameters.AddWithValue("@CivilStatus", (object)client.CivilStatus ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Occupation", (object)client.Occupation ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Employer", (object)client.Employer ?? DBNull.Value);
+                command.Parameters.AddWithValue("@MonthlyIncome", client.MonthlyIncome);
+                command.Parameters.AddWithValue("@EmploymentStatus", (object)client.EmploymentStatus ?? DBNull.Value);
+                command.Parameters.AddWithValue("@GovernmentIdType", (object)client.GovernmentIdType ?? DBNull.Value);
+                command.Parameters.AddWithValue("@GovernmentIdNumber", (object)client.GovernmentIdNumber ?? DBNull.Value);
+                command.Parameters.AddWithValue("@CreditScore", client.CreditScore);
+                command.Parameters.AddWithValue("@CreditRating", (object)client.CreditRating ?? DBNull.Value);
 
                 return command.ExecuteNonQuery() > 0;
             }
@@ -171,7 +209,7 @@ namespace LoanManagementSystem.Services
                 var command = new SqlCommand(
                     "SELECT Id, ClientCode, FullName, Email, Phone, Address, CreatedAt, CreatedBy " +
                     "FROM tbl_clients WHERE FullName LIKE @term OR Email LIKE @term OR Phone LIKE @term OR ClientCode LIKE @term " +
-                    "ORDER BY Id ASC", connection); 
+                    "ORDER BY Id ASC", connection);
 
                 command.Parameters.AddWithValue("@term", $"%{term}%");
 
@@ -197,20 +235,9 @@ namespace LoanManagementSystem.Services
             return clients;
         }
 
+        // REMOVE THIS METHOD COMPLETELY:
         // Generate unique, readable ClientCode (CL001, CL002, etc.)
-        public string GenerateClientCode()
-        {
-            using (var connection = DatabaseHelper.GetConnection())
-            {
-                connection.Open();
-                var command = new SqlCommand(
-                    "SELECT ISNULL(MAX(CAST(SUBSTRING(ClientCode, 3, LEN(ClientCode)) AS INT)), 0) " +
-                    "FROM tbl_clients WHERE ClientCode LIKE 'CL%'",
-                    connection);
-                var maxNumber = (int)command.ExecuteScalar();
-                return $"CL{(maxNumber + 1).ToString().PadLeft(3, '0')}";
-            }
-        }
+        // public string GenerateClientCode() { ... }
 
         // Alternative method: Get client by ID
         public Client GetClientById(int clientId)
@@ -265,6 +292,19 @@ namespace LoanManagementSystem.Services
                 deleteCommand.Parameters.AddWithValue("@Id", clientId);
 
                 return deleteCommand.ExecuteNonQuery() > 0;
+            }
+        }
+
+        // NEW METHOD: Check if ClientCode already exists
+        private bool ClientCodeExists(string clientCode)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("SELECT COUNT(*) FROM tbl_clients WHERE ClientCode = @ClientCode", connection);
+                command.Parameters.AddWithValue("@ClientCode", clientCode);
+                int count = (int)command.ExecuteScalar();
+                return count > 0;
             }
         }
     }

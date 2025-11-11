@@ -1,27 +1,20 @@
-﻿using System;
+﻿using LoanManagementSystem.Utilities;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
-using System.Configuration;
 
 namespace LoanManagementSystem.Repositories
 {
     public class DashboardRepository
     {
-        private readonly string _connectionString;
-
-        public DashboardRepository()
-        {
-           
-            _connectionString = ConfigurationManager.ConnectionStrings["LoanDb"].ConnectionString;
-        }
-
         public int GetTotalClients()
         {
-            const string sql = "SELECT COUNT(*) FROM dbo.tbl_clients";
-            using (var con = new SqlConnection(_connectionString))
+            const string sql = "SELECT COUNT(*) FROM tbl_clients";
+            using (var con = DatabaseHelper.GetConnection())
             using (var cmd = new SqlCommand(sql, con))
             {
                 con.Open();
@@ -31,8 +24,8 @@ namespace LoanManagementSystem.Repositories
 
         public int GetTotalLoans()
         {
-            const string sql = "SELECT COUNT(*) FROM dbo.tbl_loans";
-            using (var con = new SqlConnection(_connectionString))
+            const string sql = "SELECT COUNT(*) FROM tbl_loans";
+            using (var con = DatabaseHelper.GetConnection())
             using (var cmd = new SqlCommand(sql, con))
             {
                 con.Open();
@@ -42,9 +35,8 @@ namespace LoanManagementSystem.Repositories
 
         public int GetActiveLoans()
         {
-           
-            const string sql = "SELECT COUNT(*) FROM dbo.tbl_loans WHERE Status = 'Active'";
-            using (var con = new SqlConnection(_connectionString))
+            const string sql = "SELECT COUNT(*) FROM tbl_loans WHERE Status = 'Active'";
+            using (var con = DatabaseHelper.GetConnection())
             using (var cmd = new SqlCommand(sql, con))
             {
                 con.Open();
@@ -54,9 +46,8 @@ namespace LoanManagementSystem.Repositories
 
         public int GetPendingApprovals()
         {
-           
-            const string sql = "SELECT COUNT(*) FROM dbo.tbl_loans WHERE Status = 'Pending'";
-            using (var con = new SqlConnection(_connectionString))
+            const string sql = "SELECT COUNT(*) FROM tbl_loans WHERE Status = 'Pending'";
+            using (var con = DatabaseHelper.GetConnection())
             using (var cmd = new SqlCommand(sql, con))
             {
                 con.Open();

@@ -115,12 +115,16 @@ namespace LoanManagementSystem.Repositories
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
+
+                // Generate loan number first
+                string loanNumber = GenerateLoanNumber();
+
                 var command = new SqlCommand(
                     "INSERT INTO tbl_loans (LoanNumber, ClientID, LoanAmount, InterestRate, TermMonths, MonthlyPayment, TotalRepayment, Status, ApplicationDate, ProcessedBy, Notes) " +
                     "VALUES (@LoanNumber, @ClientId, @LoanAmount, @InterestRate, @TermMonths, @MonthlyPayment, @TotalRepayment, @Status, @ApplicationDate, @ProcessedBy, @Notes)",
                     connection);
 
-                command.Parameters.AddWithValue("@LoanNumber", GenerateLoanNumber());
+                command.Parameters.AddWithValue("@LoanNumber", loanNumber); // Use generated number
                 command.Parameters.AddWithValue("@ClientId", loan.ClientId);
                 command.Parameters.AddWithValue("@LoanAmount", loan.LoanAmount);
                 command.Parameters.AddWithValue("@InterestRate", loan.InterestRate);
@@ -172,9 +176,28 @@ namespace LoanManagementSystem.Repositories
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
-                var command = new SqlCommand("SELECT COUNT(*) FROM tbl_loans", connection);
-                var count = (int)command.ExecuteScalar();
-                return $"LN{(count + 1).ToString().PadLeft(3, '0')}";
+
+                // Get the maximum existing loan number
+                var command = new SqlCommand("SELECT MAX(LoanNumber) FROM tbl_loans WHERE LoanNumber LIKE 'LN%'", connection);
+                var maxLoanNumber = command.ExecuteScalar() as string;
+
+                if (string.IsNullOrEmpty(maxLoanNumber))
+                {
+                    return "LN001"; // First loan
+                }
+
+                // Extract the numeric part and increment
+                if (int.TryParse(maxLoanNumber.Substring(2), out int lastNumber))
+                {
+                    return $"LN{(lastNumber + 1).ToString().PadLeft(3, '0')}";
+                }
+                else
+                {
+                    // Fallback: count based generation
+                    var countCommand = new SqlCommand("SELECT COUNT(*) FROM tbl_loans", connection);
+                    var count = (int)countCommand.ExecuteScalar();
+                    return $"LN{(count + 1).ToString().PadLeft(3, '0')}";
+                }
             }
         }
 

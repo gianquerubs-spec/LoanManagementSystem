@@ -24,15 +24,28 @@ namespace LoanManagementSystem.Models
         public int ProcessedBy { get; set; }
         public string Notes { get; set; }
 
+        // Payment Tracking Fields
+        public int PaymentsMade { get; set; }
+        public int PaymentsRemaining { get; set; }
+        public decimal TotalPaid { get; set; }
+        public decimal RemainingBalance { get; set; }
+        public DateTime? NextPaymentDate { get; set; }
+
         // Add these formatted properties
         public string FormattedLoanAmount => LoanAmount.ToString("C2").Replace("$", "₱");
         public string FormattedMonthlyPayment => MonthlyPayment.ToString("C2").Replace("$", "₱");
         public string FormattedTotalRepayment => TotalRepayment.ToString("C2").Replace("$", "₱");
+        public string FormattedRemainingBalance => RemainingBalance.ToString("C2").Replace("$", "₱");
+        public string FormattedTotalPaid => TotalPaid.ToString("C2").Replace("$", "₱");
 
         public Loan()
         {
             ApplicationDate = DateTime.Now;
             Status = "Pending";
+            PaymentsMade = 0;
+            PaymentsRemaining = 0;
+            TotalPaid = 0;
+            RemainingBalance = 0;
         }
     }
 }

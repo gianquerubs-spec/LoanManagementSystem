@@ -1,10 +1,11 @@
-﻿using LoanManagementSystem.Models;
+﻿using LoanManagementSystem.Interfaces.Services;  
+using LoanManagementSystem.Models;
 using LoanManagementSystem.Repositories;
 using System;
 
 namespace LoanManagementSystem.Services
 {
-    public class AuthService : IAuthService
+    public class AuthService : IAuthService 
     {
         private readonly IUserRepository _userRepository;
         public User CurrentUser { get; private set; }

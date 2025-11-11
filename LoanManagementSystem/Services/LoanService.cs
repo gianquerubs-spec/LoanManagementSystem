@@ -1,16 +1,14 @@
-﻿using LoanManagementSystem.Models;
+﻿using LoanManagementSystem.Interfaces.Services;
+using LoanManagementSystem.Models;
 using LoanManagementSystem.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace LoanManagementSystem.Services
 {
-    public class LoanService : ILoanService
+    public class LoanService : ILoanService  
     {
         public List<Loan> GetAllLoans()
         {
@@ -22,7 +20,7 @@ namespace LoanManagementSystem.Services
                 var command = new SqlCommand(
                     "SELECT l.*, c.FullName as ClientName " +
                     "FROM tbl_loans l INNER JOIN tbl_clients c ON l.ClientId = c.Id " +
-                    "ORDER BY l.LoanNumber ASC", // Changed to sort by LoanNumber
+                    "ORDER BY l.LoanNumber ASC", 
                     connection);
 
                 using (var reader = command.ExecuteReader())
@@ -65,7 +63,7 @@ namespace LoanManagementSystem.Services
                     "SELECT l.*, c.FullName as ClientName " +
                     "FROM tbl_loans l INNER JOIN tbl_clients c ON l.ClientId = c.Id " +
                     "WHERE l.Status = @Status " +
-                    "ORDER BY l.LoanNumber ASC", // Changed to sort by LoanNumber
+                    "ORDER BY l.LoanNumber ASC", 
                     connection);
 
                 command.Parameters.AddWithValue("@Status", status);
@@ -183,17 +181,21 @@ namespace LoanManagementSystem.Services
             return null;
         }
 
-        public bool AddLoan(Loan loan, int processedByUserId)
+        public bool AddLoan(Loan loan, int processedByUserId = 1)
         {
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
+
+                // Generate the loan number first
+                string loanNumber = GenerateLoanNumber();
+
                 var command = new SqlCommand(
                     "INSERT INTO tbl_loans (LoanNumber, ClientId, LoanAmount, InterestRate, TermMonths, MonthlyPayment, TotalRepayment, Status, ApplicationDate, ProcessedBy, Notes) " +
                     "VALUES (@LoanNumber, @ClientId, @LoanAmount, @InterestRate, @TermMonths, @MonthlyPayment, @TotalRepayment, @Status, @ApplicationDate, @ProcessedBy, @Notes)",
                     connection);
 
-                command.Parameters.AddWithValue("@LoanNumber", GenerateLoanNumber());
+                command.Parameters.AddWithValue("@LoanNumber", loanNumber); // Use generated number
                 command.Parameters.AddWithValue("@ClientId", loan.ClientId);
                 command.Parameters.AddWithValue("@LoanAmount", loan.LoanAmount);
                 command.Parameters.AddWithValue("@InterestRate", loan.InterestRate);
@@ -245,9 +247,28 @@ namespace LoanManagementSystem.Services
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
-                var command = new SqlCommand("SELECT COUNT(*) FROM tbl_loans", connection);
-                var count = (int)command.ExecuteScalar();
-                return $"LN{(count + 1).ToString().PadLeft(3, '0')}";
+
+                // Get the maximum existing loan number
+                var command = new SqlCommand("SELECT MAX(LoanNumber) FROM tbl_loans WHERE LoanNumber LIKE 'LN%'", connection);
+                var maxLoanNumber = command.ExecuteScalar() as string;
+
+                if (string.IsNullOrEmpty(maxLoanNumber))
+                {
+                    return "LN001"; // First loan
+                }
+
+                // Extract the numeric part and increment
+                if (int.TryParse(maxLoanNumber.Substring(2), out int lastNumber))
+                {
+                    return $"LN{(lastNumber + 1).ToString().PadLeft(3, '0')}";
+                }
+                else
+                {
+                    // Fallback: count based generation
+                    var countCommand = new SqlCommand("SELECT COUNT(*) FROM tbl_loans", connection);
+                    var count = (int)countCommand.ExecuteScalar();
+                    return $"LN{(count + 1).ToString().PadLeft(3, '0')}";
+                }
             }
         }
 
@@ -261,6 +282,72 @@ namespace LoanManagementSystem.Services
         public decimal CalculateTotalRepayment(decimal monthlyPayment, int termMonths)
         {
             return monthlyPayment * termMonths;
+        }
+        public void UpdateLoanPaymentTracking(string loanNumber)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                connection.Open();
+
+                // Get payment service to calculate totals
+                var paymentService = new PaymentService();
+                decimal totalPaid = paymentService.GetTotalPaid(loanNumber);
+
+                // Get loan details
+                var loanCommand = new SqlCommand(
+                    "SELECT LoanAmount, TotalRepayment, MonthlyPayment, TermMonths FROM tbl_loans WHERE LoanNumber = @LoanNumber",
+                    connection);
+                loanCommand.Parameters.AddWithValue("@LoanNumber", loanNumber);
+
+                using (var reader = loanCommand.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        decimal monthlyPayment = (decimal)reader["MonthlyPayment"];
+                        int termMonths = (int)reader["TermMonths"];
+                        decimal totalRepayment = (decimal)reader["TotalRepayment"];
+
+                        reader.Close();
+
+                        // Calculate payment tracking
+                        int paymentsMade = monthlyPayment > 0 ? (int)(totalPaid / monthlyPayment) : 0;
+                        int paymentsRemaining = termMonths - paymentsMade;
+                        decimal remainingBalance = totalRepayment - totalPaid;
+
+                        // Update loan
+                        var updateCommand = new SqlCommand(
+                            "UPDATE tbl_loans SET PaymentsMade = @PaymentsMade, PaymentsRemaining = @PaymentsRemaining, " +
+                            "TotalPaid = @TotalPaid, RemainingBalance = @RemainingBalance, " +
+                            "NextPaymentDate = @NextPaymentDate WHERE LoanNumber = @LoanNumber",
+                            connection);
+
+                        updateCommand.Parameters.AddWithValue("@PaymentsMade", paymentsMade);
+                        updateCommand.Parameters.AddWithValue("@PaymentsRemaining", paymentsRemaining);
+                        updateCommand.Parameters.AddWithValue("@TotalPaid", totalPaid);
+                        updateCommand.Parameters.AddWithValue("@RemainingBalance", remainingBalance);
+                        updateCommand.Parameters.AddWithValue("@NextPaymentDate", DateTime.Now.AddMonths(1));
+                        updateCommand.Parameters.AddWithValue("@LoanNumber", loanNumber);
+
+                        updateCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
+
+        public Loan GetLoanWithPaymentInfo(string loanNumber)
+        {
+            var loan = GetLoanByNumber(loanNumber);
+            if (loan != null)
+            {
+                var paymentService = new PaymentService();
+                decimal totalPaid = paymentService.GetTotalPaid(loanNumber);
+
+                loan.TotalPaid = totalPaid;
+                loan.RemainingBalance = loan.TotalRepayment - totalPaid;
+                loan.PaymentsMade = loan.MonthlyPayment > 0 ? (int)(totalPaid / loan.MonthlyPayment) : 0;
+                loan.PaymentsRemaining = loan.TermMonths - loan.PaymentsMade;
+            }
+            return loan;
         }
     }
 }
